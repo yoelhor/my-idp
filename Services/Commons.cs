@@ -1,0 +1,72 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using my_idp.Models;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Cryptography.X509Certificates;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Http;
+using Microsoft.ApplicationInsights;
+using System.Text.Json;
+
+namespace my_idp
+{
+    public class Commons
+    {
+
+        public static Lazy<X509SigningCredentials> LoadCertificate()
+        {
+            return new Lazy<X509SigningCredentials>(() =>
+            {
+
+                X509Store certStore = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+                certStore.Open(OpenFlags.ReadOnly);
+                X509Certificate2Collection certCollection = certStore.Certificates.Find(
+                                            X509FindType.FindByThumbprint,
+                                            AppSettings.SigningCertThumbprint,
+                                            false);
+                // Get the first cert with the thumb-print
+                if (certCollection.Count > 0)
+                {
+                    return new X509SigningCredentials(certCollection[0]);
+                }
+
+                throw new Exception("Certificate not found");
+            });
+        }
+        public static string BuildJwtToken(X509SigningCredentials SigningCredentials, HttpRequest request, string ClientId, string Name, string email)
+        {
+            string issuer = $"{request.Scheme}://{request.Host}{request.PathBase.Value}";
+
+            // Token issuance date and time
+            DateTime time = DateTime.Now;
+
+            // All parameters send to Azure AD B2C needs to be sent as claims
+            IList<System.Security.Claims.Claim> claims = new List<System.Security.Claims.Claim>();
+            claims.Add(new System.Security.Claims.Claim("sub", email, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("iat", ((DateTimeOffset)time).ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer, issuer));
+            claims.Add(new System.Security.Claims.Claim("name", email, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("given_name", Name.Split(' ')[0], System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("family_name", Name.Split(' ')[1], System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("email", email, System.Security.Claims.ClaimValueTypes.String, issuer));
+
+            // Create the token
+            JwtSecurityToken token = new JwtSecurityToken(
+                    issuer,
+                    ClientId,
+                    claims,
+                    time,
+                    time.AddHours(24),
+                    SigningCredentials);
+
+            // Get the representation of the signed token
+            JwtSecurityTokenHandler jwtHandler = new JwtSecurityTokenHandler();
+
+            return jwtHandler.WriteToken(token);
+        }
+    }
+}
