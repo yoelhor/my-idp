@@ -38,7 +38,7 @@ namespace my_idp
                 throw new Exception("Certificate not found");
             });
         }
-        public static string BuildJwtToken(X509SigningCredentials SigningCredentials, HttpRequest request, string ClientId, string Name, string email)
+        public static string BuildJwtToken(X509SigningCredentials SigningCredentials, HttpRequest request, HomeViewModel model)
         {
             string issuer = $"{request.Scheme}://{request.Host}{request.PathBase.Value}";
 
@@ -47,17 +47,36 @@ namespace my_idp
 
             // All parameters send to Azure AD B2C needs to be sent as claims
             IList<System.Security.Claims.Claim> claims = new List<System.Security.Claims.Claim>();
-            claims.Add(new System.Security.Claims.Claim("sub", email, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("sub", model.email, System.Security.Claims.ClaimValueTypes.String, issuer));
             claims.Add(new System.Security.Claims.Claim("iat", ((DateTimeOffset)time).ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer, issuer));
-            claims.Add(new System.Security.Claims.Claim("name", email, System.Security.Claims.ClaimValueTypes.String, issuer));
-            claims.Add(new System.Security.Claims.Claim("given_name", Name.Split(' ')[0], System.Security.Claims.ClaimValueTypes.String, issuer));
-            claims.Add(new System.Security.Claims.Claim("family_name", Name.Split(' ')[1], System.Security.Claims.ClaimValueTypes.String, issuer));
-            claims.Add(new System.Security.Claims.Claim("email", email, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("email", model.email, System.Security.Claims.ClaimValueTypes.String, issuer));
+
+            if (model.name != null)
+            {
+                claims.Add(new System.Security.Claims.Claim("name", model.name, System.Security.Claims.ClaimValueTypes.String, issuer));
+                claims.Add(new System.Security.Claims.Claim("given_name", model.name.Split(' ')[0], System.Security.Claims.ClaimValueTypes.String, issuer));
+                claims.Add(new System.Security.Claims.Claim("family_name", model.name.Split(' ')[1], System.Security.Claims.ClaimValueTypes.String, issuer));
+            }
+
+            if (model.phone_number != null)
+            {
+                claims.Add(new System.Security.Claims.Claim("phone_number", model.phone_number, System.Security.Claims.ClaimValueTypes.String, issuer));
+            }
+
+            if (model.locality != null)
+            {
+                claims.Add(new System.Security.Claims.Claim("locality", model.locality, System.Security.Claims.ClaimValueTypes.String, issuer));
+            }
+
+            if (model.country != null)
+            {
+                claims.Add(new System.Security.Claims.Claim("country", model.country, System.Security.Claims.ClaimValueTypes.String, issuer));
+            }
 
             // Create the token
             JwtSecurityToken token = new JwtSecurityToken(
                     issuer,
-                    ClientId,
+                    model.client_id,
                     claims,
                     time,
                     time.AddHours(24),

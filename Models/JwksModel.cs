@@ -51,7 +51,7 @@ namespace my_idp.Models
             string thumbprint = Base64UrlEncoder.Encode(certificate.GetCertHash());
 
             // JWK must have the modulus and exponent explicitly defined
-            RSACng? rsa = certificate.GetRSAPublicKey() as RSACng;
+            var rsa = certificate.GetRSAPublicKey();
 
             if (rsa == null)
             {
@@ -65,7 +65,7 @@ namespace my_idp.Models
             return new JwksKeyModel
             {
                 Kid = signingCredentials.Kid,
-                Kty = "RSA",
+                Kty = rsa.SignatureAlgorithm,
                 Nbf = new DateTimeOffset(certificate.NotBefore).ToUnixTimeSeconds(),
                 Use = "sig",
                 Alg = signingCredentials.Algorithm,

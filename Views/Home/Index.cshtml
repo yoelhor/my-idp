@@ -3,8 +3,106 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Sign in with custom OIDC identity provider</h1>
 </div>
+
+
+<form method="post">
+
+    <div class="row">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="email" class="form-control" id="email" name="email" value="@@example.com" required
+                    placeholder="name@example.com">
+                <label for="email">Email address (email)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="name" name="name" placeholder="" value="Emily H.">
+                <label for="name">Display name (name)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="phone_number" name="phone_number" value="+49 211 5684962"
+                    placeholder="" value="Emily">
+                <label for="given_name">Phone number (phone_number)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="locality" name="locality" placeholder="" value="Munich">
+                <label for="locality">City (locality)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="country" name="country" placeholder="" value="Germany">
+                <label for="country">Country or Region (country)</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="state" name="state" placeholder=""
+                    value="@ViewData["state"]">
+                <label for="locality">state</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="scope" name="scope" placeholder=""
+                    value="@ViewData["scope"]">
+                <label for="locality">scope</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="client_id" name="client_id" placeholder=""
+                    value="@ViewData["client_id"]">
+                <label for="locality">client_id</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="redirect_uri" name="redirect_uri" placeholder=""
+                    value="@ViewData["redirect_uri"]">
+                <label for="locality">redirect_uri</label>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <input type="submit" value="Sign-in" class="btn btn-primary" />
+        </div>
+    </div>
+
+</form>
 
 <a href="@Url.Link("oidc-config", new { })">openid-configuration</a>

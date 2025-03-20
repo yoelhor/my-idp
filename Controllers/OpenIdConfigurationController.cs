@@ -9,7 +9,6 @@ namespace my_idp.oauth2.Controllers
     public class OpenIdConfigurationController : Controller
     {
         private static Lazy<X509SigningCredentials> SigningCredentials = null!;
-        private TelemetryClient _telemetry;
         private readonly ILogger<OpenIdConfigurationController> _logger;
 
         public OpenIdConfigurationController(ILogger<OpenIdConfigurationController> logger)
@@ -24,16 +23,17 @@ namespace my_idp.oauth2.Controllers
             OidcConfigurationModel payload = new OidcConfigurationModel
             {
                 // The issuer name is the application root path
-                Issuer = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase.Value}",
+                //Issuer = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase.Value}",
+                Issuer = "https://idp.woodgrovedemo.com",
 
                 // Include the absolute URL to JWKs endpoint
                 JwksUri = Url.Link("oidc-jwks", new { })!,
 
                 // End points
-                AuthorizationEndpoint = Url.ActionLink("Index", "authorize")!,
-                TokenEndpoint = Url.ActionLink("Index", "token")!,
-                UserInfoEndpoint = Url.ActionLink("Index", "userinfo")!,
-                EndSessionEndpoint = Url.ActionLink("Index", "logout")!,
+                AuthorizationEndpoint = Url.ActionLink("Index", "home")!.Replace("http://", "https://"),
+                TokenEndpoint = Url.ActionLink("Index", "token")!.Replace("http://", "https://"),
+                UserInfoEndpoint = Url.ActionLink("Index", "userinfo")!.Replace("http://", "https://"),
+                EndSessionEndpoint = Url.ActionLink("Index", "logout")!.Replace("http://", "https://"),
 
                 // Other metadata
                 response_modes_supported = new[] { "query", "fragment", "form_post" },

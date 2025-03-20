@@ -69,10 +69,11 @@ namespace my_idp.oauth2.Controllers
             {
                 var base64EncodedBytes = System.Convert.FromBase64String(code);
                 string codeString = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+                HomeViewModel model = new HomeViewModel();
 
                 string client_id = codeString.Split('|')[1];
                 string email = codeString.Split('|')[2];
-                string JWT = Commons.BuildJwtToken(TokenController.SigningCredentials.Value, this.Request, client_id, "My test user" , email);
+                string JWT = Commons.BuildJwtToken(TokenController.SigningCredentials.Value, this.Request, model);
 
                 DateTime not_before = DateTime.Now.AddSeconds(-30);
                 long not_beforeUnixTime = ((DateTimeOffset)not_before).ToUnixTimeSeconds();

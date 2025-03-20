@@ -7,6 +7,6 @@ namespace my_idp.Models
 {
     public static class AppSettings
     {
-        public const string SigningCertThumbprint = "3E7B3609EF07B35AB8BA1C937A398DDFB870DE74";
+        public const string SigningCertThumbprint = "C2130CC3FD9DBB06BEB6E460DDBC3FF8BAE72B16";
     }
 }
