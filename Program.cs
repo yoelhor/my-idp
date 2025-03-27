@@ -5,16 +5,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-var app = builder.Build();
-
 // Add Azure stream log service
 builder.Logging.AddAzureWebAppDiagnostics();
+
+// Add in memory cache                                                  
+builder.Services.AddMemoryCache();
+
+var app = builder.Build();
 
 // Enable Application Insights telemetry
 //builder.Services.AddApplicationInsightsTelemetry();
 
-// Add in memory cache                                                  
-builder.Services.AddMemoryCache();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
