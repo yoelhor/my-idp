@@ -31,6 +31,22 @@
     <div class="row" style="padding-top: 15px;">
         <div class="col-md">
             <div class="form-floating">
+                <input type="text" class="form-control" id="given_name" name="given_name" placeholder="" value="Emily">
+                <label for="name">Given name (given_name)</label>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
+                <input type="text" class="form-control" id="family_name" name="family_name" placeholder="" value="H.">
+                <label for="name">Family name (family_name)</label>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="padding-top: 15px;">
+        <div class="col-md">
+            <div class="form-floating">
                 <input type="text" class="form-control" id="phone_number" name="phone_number" value="+49 211 5684962"
                     placeholder="" value="Emily">
                 <label for="given_name">Phone number (phone_number)</label>
@@ -55,47 +71,55 @@
             </div>
         </div>
     </div>
+    <div>&nbsp;</div>
+    <a data-bs-toggle="collapse" href="#collapseExample" aria-expanded="false"
+        aria-controls="collapseExample">
+        Technical parameters
+    </a>
+    &nbsp;
+    <a href="@Url.Link("oidc-config", new { })">OpenID Connect configuration</a>
 
-    <div class="row" style="padding-top: 15px;">
-        <div class="col-md">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="state" name="state" placeholder=""
-                    value="@ViewData["state"]">
-                <label for="locality">state</label>
+    <div class="collapse" id="collapseExample">
+        <div class="row" style="padding-top: 15px;">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="state" name="state" placeholder=""
+                        value="@ViewData["state"]">
+                    <label for="locality">state</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="padding-top: 15px;">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="scope" name="scope" placeholder=""
+                        value="@ViewData["scope"]">
+                    <label for="locality">scope</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="padding-top: 15px;">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="client_id" name="client_id" placeholder=""
+                        value="@ViewData["client_id"]">
+                    <label for="locality">client_id</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="padding-top: 15px;">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="redirect_uri" name="redirect_uri" placeholder=""
+                        value="@ViewData["redirect_uri"]">
+                    <label for="locality">redirect_uri</label>
+                </div>
             </div>
         </div>
     </div>
-
-    <div class="row" style="padding-top: 15px;">
-        <div class="col-md">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="scope" name="scope" placeholder=""
-                    value="@ViewData["scope"]">
-                <label for="locality">scope</label>
-            </div>
-        </div>
-    </div>
-
-    <div class="row" style="padding-top: 15px;">
-        <div class="col-md">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="client_id" name="client_id" placeholder=""
-                    value="@ViewData["client_id"]">
-                <label for="locality">client_id</label>
-            </div>
-        </div>
-    </div>
-
-    <div class="row" style="padding-top: 15px;">
-        <div class="col-md">
-            <div class="form-floating">
-                <input type="text" class="form-control" id="redirect_uri" name="redirect_uri" placeholder=""
-                    value="@ViewData["redirect_uri"]">
-                <label for="locality">redirect_uri</label>
-            </div>
-        </div>
-    </div>
-
 
     <div class="row" style="padding-top: 15px;">
         <div class="col-md">
@@ -104,6 +128,4 @@
     </div>
 
 </form>
-
-<a href="@Url.Link("oidc-config", new { })">openid-configuration</a><br>
 
