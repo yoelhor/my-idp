@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using my_idp.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace my_idp.oauth2.Controllers
 {
@@ -12,10 +13,12 @@ namespace my_idp.oauth2.Controllers
         Random rand = new Random();
         private static Lazy<X509SigningCredentials> SigningCredentials = null!;
         private readonly ILogger<HomeController> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IMemoryCache memoryCache)
         {
             _logger = logger;
+            _memoryCache = memoryCache;
             SigningCredentials = Commons.LoadCertificate();
         }
 
@@ -35,18 +38,21 @@ namespace my_idp.oauth2.Controllers
         public RedirectResult SignIn(HomeViewModel model)
         {
 
-            string code = $"{rand.Next(12345, 99999)}|{model.client_id}|{model.email}";
+            string code = $"{model.client_id}|{model.email}";
             var codeTextBytes = System.Text.Encoding.UTF8.GetBytes(code);
             string id_token = Commons.BuildJwtToken(HomeController.SigningCredentials.Value, this.Request, model);
-            //id_token={id_token}&
             string URL = $"{model.redirect_uri}?code={System.Convert.ToBase64String(codeTextBytes)}";
 
             // Return the state parameter
-            URL += $"&state={model.state.Replace("=", "%3D")}";
+            URL += $"&state={(model.state ?? string.Empty).Replace("=", "%3D")}";
 
             if (model.client_id == "default")
                 URL = URL + $"&id_token={id_token}";
 
+            // Add the token to the cache
+            _memoryCache.Set(code, id_token);
+
+            // Redirect to the client
             return Redirect(URL);
 
         }

@@ -3,37 +3,37 @@ using Microsoft.AspNetCore.Mvc;
 using my_idp.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.ApplicationInsights;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace my_idp.oauth2.Controllers
 {
     public class TokenController : Controller
     {
-        private static Lazy<X509SigningCredentials> SigningCredentials = null!;
         private readonly ILogger<TokenController> _logger;
-
-        public TokenController(ILogger<TokenController> logger)
+        private readonly IMemoryCache _memoryCache;
+        public TokenController(ILogger<TokenController> logger, IMemoryCache memoryCache)
         {
             this._logger = logger;
-            SigningCredentials = Commons.LoadCertificate();
+            this._memoryCache = memoryCache;
         }
 
         [HttpGet]
         [ActionName("index")]
-        public async Task<IActionResult> IndexAsyncGet(string code)
+        public IActionResult IndexAsyncGet(string code)
         {
             _logger.LogInformation($"#### HTTP GET call to /toekn");
-            return await IndexCommonAsync(code);
+            return IndexCommonAsync(code);
         }
 
         [HttpPost]
         [ActionName("index")]
-        public async Task<IActionResult> IndexAsyncPost(string code)
+        public IActionResult IndexAsyncPost(string code)
         {
             _logger.LogInformation($"#### HTTP POST call to /toekn");
-            return await IndexCommonAsync(code);
+            return IndexCommonAsync(code);
         }
 
-        private async Task<IActionResult> IndexCommonAsync(string code)
+        private IActionResult IndexCommonAsync(string code)
         {
             if (string.IsNullOrEmpty(code))
             {
@@ -47,13 +47,13 @@ namespace my_idp.oauth2.Controllers
 
             if (Request.Method == "POST")
             {
-                ClientId = this.Request.Form["client_id"];
-                ClientSecret = this.Request.Form["client_secret"];
+                ClientId = this.Request.Form["client_id"].ToString() ?? string.Empty;
+                ClientSecret = this.Request.Form["client_secret"].ToString() ?? string.Empty;
             }
             else
             {
-                ClientId = this.Request.Query["client_id"];
-                ClientSecret = this.Request.Query["client_secret"];
+                ClientId = this.Request.Query["client_id"].ToString() ?? string.Empty;
+                ClientSecret = this.Request.Query["client_secret"].ToString() ?? string.Empty;
             }
 
             // Check if client_secret_post authentication method is used
@@ -80,10 +80,10 @@ namespace my_idp.oauth2.Controllers
                 string codeString = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
                 HomeViewModel model = new HomeViewModel();
 
-                string client_id = codeString.Split('|')[1];
-                string email = codeString.Split('|')[2];
-                string JWT = Commons.BuildJwtToken(TokenController.SigningCredentials.Value, this.Request, model);
+                // Get the token from the canche using the code
+                string id_token = _memoryCache.Get<string>(codeString) ?? "Token not found";
 
+                // Set the token lifetime
                 DateTime not_before = DateTime.Now.AddSeconds(-30);
                 long not_beforeUnixTime = ((DateTimeOffset)not_before).ToUnixTimeSeconds();
 
@@ -92,10 +92,10 @@ namespace my_idp.oauth2.Controllers
 
                 var payload = new
                 {
-                    access_token = JWT,
-                    id_token = JWT,
+                    access_token = id_token,
+                    id_token = id_token,
                     token_type = "bearer",
-                    refresh_token = "2723ff54-a7c6-4f66-b34a-332fcb9980b8",
+                    refresh_token = Guid.NewGuid().ToString(),
                     not_before = not_beforeUnixTime,
                     expires_in = 43199,
                     expires_on = expires_onUnixTime,
