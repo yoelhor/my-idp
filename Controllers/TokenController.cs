@@ -120,7 +120,7 @@ namespace my_idp.oauth2.Controllers
                     access_token = id_token,
                     id_token = id_token,
                     token_type = "bearer",
-                    refresh_token = Guid.NewGuid().ToString(),
+                    refresh_token = userIDBase64,
                     not_before = not_beforeUnixTime,
                     expires_in = 43199,
                     expires_on = expires_onUnixTime,
