@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Primitives;
 using Microsoft.ApplicationInsights;
+using System.Text.Json;
 
 namespace my_idp.oauth2.Controllers
 {
@@ -19,6 +20,7 @@ namespace my_idp.oauth2.Controllers
         [HttpGet]
         public IActionResult Index()
         {
+            _logger.LogInformation($"#### HTTP GET call to /UserInfo");
             string BearerToken = string.Empty;
             StringValues authorizationHeader;
 
@@ -26,7 +28,7 @@ namespace my_idp.oauth2.Controllers
             Oauth2TenantConfig settings = new Oauth2TenantConfig();
             if (settings.UserInfo.BearerTokenTransmissionMethod.QueryString)
             {
-                BearerToken = this.Request.Query[settings.UserInfo.QueryStringAccessTokenName];
+                BearerToken = this.Request.Query[settings.UserInfo.QueryStringAccessTokenName].ToString() ?? string.Empty;
             }
 
             // If not found try to get it from the authorization HTTP header
@@ -40,6 +42,7 @@ namespace my_idp.oauth2.Controllers
             // Check if the bearer token is not found
             if (string.IsNullOrEmpty(BearerToken))
             {
+                _logger.LogInformation($"#### Bear token not found");
                 return new BadRequestObjectResult(new { error = "Bearer token not found" });
             }
 
@@ -53,7 +56,11 @@ namespace my_idp.oauth2.Controllers
             {
                 payload.Add(item.Type, item.Value);
             }
+            
+            // Log the payload
+            _logger.LogInformation($"#### Payload: {JsonSerializer.Serialize(payload)}");         
 
+            // Return the payload
             return Ok(payload);
         }
     }
