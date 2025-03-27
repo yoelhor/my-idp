@@ -31,7 +31,7 @@ namespace my_idp.oauth2.Controllers
 
         [HttpPost]
         [ActionName("index")]
-        public IActionResult IndexAsyncPost(string code)
+        public IActionResult IndexAsyncPost()
         {
             _logger.LogInformation($"#### HTTP POST call to /toekn");
 
@@ -47,6 +47,9 @@ namespace my_idp.oauth2.Controllers
             var formData = Request.Form.ToDictionary(f => f.Key, f => f.Value.ToString());  
             _logger.LogInformation($"#### HTTP request Form data: {JsonSerializer.Serialize(formData)}");
 
+            // Read the code from request form data
+            string code = Request.Form["code"].ToString() ?? string.Empty;
+            
             return IndexCommonAsync(code);
         }
 
