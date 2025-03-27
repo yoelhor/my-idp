@@ -10,11 +10,12 @@ namespace my_idp.oauth2.Controllers
     {
         private static Lazy<X509SigningCredentials> SigningCredentials = null!;
         private readonly ILogger<OpenIdKeysController> _logger;
-
-        public OpenIdKeysController(ILogger<OpenIdKeysController> logger)
+        private readonly IConfiguration _configuration;
+        public OpenIdKeysController(ILogger<OpenIdKeysController> logger, IConfiguration configuration)
         {
             _logger = logger;
-            SigningCredentials = Commons.LoadCertificate();
+            _configuration = configuration;
+            SigningCredentials = Commons.LoadCertificate(_configuration.GetSection("AppSettings:SigningCertThumbprint").Value!);
         }
 
         public ActionResult Index()

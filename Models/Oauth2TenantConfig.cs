@@ -9,8 +9,6 @@ namespace my_idp.Models
     {
         public AuthorizationConfig Authorization { get; set; } = new AuthorizationConfig();
         public TokenConfig Token { get; set; } = new TokenConfig();
-        public string ClientId { get; set; } = "1234";
-        public string ClientSecret { get; set; } = "abcd";
         public UserInfoConfig UserInfo { get; set; } = new UserInfoConfig();
         public OpenIdConfiguration OpenIdConfiguration { get; set; } = new OpenIdConfiguration();
         public JWKs JWKs { get; set; } = new JWKs();

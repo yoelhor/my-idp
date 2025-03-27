@@ -18,7 +18,7 @@ namespace my_idp
     public class Commons
     {
 
-        public static Lazy<X509SigningCredentials> LoadCertificate()
+        public static Lazy<X509SigningCredentials> LoadCertificate(string signingCertThumbprint)
         {
             return new Lazy<X509SigningCredentials>(() =>
             {
@@ -27,7 +27,7 @@ namespace my_idp
                 certStore.Open(OpenFlags.ReadOnly);
                 X509Certificate2Collection certCollection = certStore.Certificates.Find(
                                             X509FindType.FindByThumbprint,
-                                            AppSettings.SigningCertThumbprint,
+                                            signingCertThumbprint,
                                             false);
                 // Get the first cert with the thumb-print
                 if (certCollection.Count > 0)
@@ -38,18 +38,16 @@ namespace my_idp
                 throw new Exception("Certificate not found");
             });
         }
-        public static string BuildJwtToken(X509SigningCredentials SigningCredentials, HttpRequest request, HomeViewModel model)
+        public static string BuildJwtToken(X509SigningCredentials SigningCredentials, string issuer, HttpRequest request, HomeViewModel model)
         {
-            string issuer = $"{request.Scheme}://{request.Host}{request.PathBase.Value}";
-
             // Token issuance date and time
             DateTime time = DateTime.Now;
 
             // All parameters send to Azure AD B2C needs to be sent as claims
             IList<System.Security.Claims.Claim> claims = new List<System.Security.Claims.Claim>();
-            claims.Add(new System.Security.Claims.Claim("sub", model.email, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("sub", model.email!, System.Security.Claims.ClaimValueTypes.String, issuer));
             claims.Add(new System.Security.Claims.Claim("iat", ((DateTimeOffset)time).ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer, issuer));
-            claims.Add(new System.Security.Claims.Claim("email", model.email, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("email", model.email!, System.Security.Claims.ClaimValueTypes.String, issuer));
             claims.Add(new System.Security.Claims.Claim("email_verified", true.ToString(), System.Security.Claims.ClaimValueTypes.Boolean, issuer));
 
             if (model.name != null)

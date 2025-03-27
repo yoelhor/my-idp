@@ -14,12 +14,14 @@ namespace my_idp.oauth2.Controllers
         private static Lazy<X509SigningCredentials> SigningCredentials = null!;
         private readonly ILogger<HomeController> _logger;
         private readonly IMemoryCache _memoryCache;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger, IMemoryCache memoryCache)
+        public HomeController(ILogger<HomeController> logger, IMemoryCache memoryCache, IConfiguration configuration)
         {
             _logger = logger;
             _memoryCache = memoryCache;
-            SigningCredentials = Commons.LoadCertificate();
+            _configuration = configuration;
+            SigningCredentials = Commons.LoadCertificate(_configuration.GetSection("AppSettings:SigningCertThumbprint").Value!);
         }
 
         [ActionName("index")]
@@ -40,7 +42,7 @@ namespace my_idp.oauth2.Controllers
 
             string code = $"{model.client_id}|{model.email}";
             var codeTextBytes = System.Text.Encoding.UTF8.GetBytes(code);
-            string id_token = Commons.BuildJwtToken(HomeController.SigningCredentials.Value, this.Request, model);
+            string id_token = Commons.BuildJwtToken(HomeController.SigningCredentials.Value, _configuration.GetSection("AppSettings:issuer").Value!, this.Request, model);
             string URL = $"{model.redirect_uri}?code={System.Convert.ToBase64String(codeTextBytes)}";
 
             // Return the state parameter

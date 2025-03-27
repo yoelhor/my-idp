@@ -10,11 +10,13 @@ namespace my_idp.oauth2.Controllers
     {
         private static Lazy<X509SigningCredentials> SigningCredentials = null!;
         private readonly ILogger<OpenIdConfigurationController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public OpenIdConfigurationController(ILogger<OpenIdConfigurationController> logger)
+        public OpenIdConfigurationController(ILogger<OpenIdConfigurationController> logger, IConfiguration configuration)
         {
             this._logger = logger;
-            SigningCredentials = Commons.LoadCertificate();
+            this._configuration = configuration;
+            SigningCredentials = Commons.LoadCertificate(_configuration.GetSection("AppSettings:SigningCertThumbprint").Value!);
         }
 
         public IActionResult Index()
@@ -22,9 +24,8 @@ namespace my_idp.oauth2.Controllers
 
             OidcConfigurationModel payload = new OidcConfigurationModel
             {
-                // The issuer name is the application root path
-                //Issuer = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase.Value}",
-                Issuer = "https://idp.woodgrovedemo.com",
+                // The issuer name
+                Issuer = _configuration.GetSection("AppSettings:issuer").Value!,
 
                 // Include the absolute URL to JWKs endpoint
                 JwksUri = Url.Link("oidc-jwks", new { })!,

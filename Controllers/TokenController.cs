@@ -12,10 +12,12 @@ namespace my_idp.oauth2.Controllers
     {
         private readonly ILogger<TokenController> _logger;
         private readonly IMemoryCache _memoryCache;
-        public TokenController(ILogger<TokenController> logger, IMemoryCache memoryCache)
+        private readonly IConfiguration _configuration;
+        public TokenController(ILogger<TokenController> logger, IMemoryCache memoryCache, IConfiguration configuration)
         {
             this._logger = logger;
             this._memoryCache = memoryCache;
+            this._configuration = configuration;
         }
 
         [HttpGet]
@@ -62,8 +64,7 @@ namespace my_idp.oauth2.Controllers
             {
                 // Check credentials
                 Oauth2TenantConfig settings = new Oauth2TenantConfig();
-                if (settings.Token.CheckCredentials &&
-                    (settings.ClientId != ClientId || settings.ClientSecret != ClientSecret))
+                if (_configuration.GetSection("AppSettings:ClientId").Value! != ClientId || _configuration.GetSection("AppSettings:ClientSecret").Value != ClientSecret)
                 {
                     _logger.LogError($"#### Invalid cline_id or client_secret");
                     return new UnauthorizedObjectResult(new { error = "Invalid client_secret_post credentials" });
