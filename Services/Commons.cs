@@ -52,6 +52,7 @@ namespace my_idp
             claims.Add(new System.Security.Claims.Claim("iat", ((DateTimeOffset)time).ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer, issuer));
             claims.Add(new System.Security.Claims.Claim("email", model.email!, System.Security.Claims.ClaimValueTypes.String, issuer));
             claims.Add(new System.Security.Claims.Claim("email_verified", true.ToString(), System.Security.Claims.ClaimValueTypes.Boolean, issuer));
+            claims.Add(new System.Security.Claims.Claim("version", true.ToString(), System.Reflection.Assembly.GetExecutingAssembly()!.GetName()!.Version!.ToString()!, issuer));
 
             if (model.name != null)
             {
