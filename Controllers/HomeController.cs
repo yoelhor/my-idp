@@ -40,12 +40,11 @@ namespace my_idp.oauth2.Controllers
         public RedirectResult SignIn(HomeViewModel model)
         {
 
-            string code = $"{model.client_id}|{model.email}";
-            var codeTextBytes = System.Text.Encoding.UTF8.GetBytes(code);
-            string URL = $"{model.redirect_uri}?code={System.Convert.ToBase64String(codeTextBytes)}";
+            string userIDBase64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"{model.client_id}|{model.email}"));
+            string URL = $"{model.redirect_uri}?code={userIDBase64}";
 
             // Generate the JWT token
-            string id_token = Commons.BuildJwtToken(HomeController.SigningCredentials.Value, _configuration.GetSection("AppSettings:issuer").Value!, this.Request, model);
+            string id_token = Commons.BuildJwtToken(HomeController.SigningCredentials.Value, _configuration.GetSection("AppSettings:issuer").Value!, userIDBase64, this.Request, model);
 
             // Return the state parameter
             URL += $"&state={(model.state ?? string.Empty).Replace("=", "%3D")}";
@@ -54,7 +53,7 @@ namespace my_idp.oauth2.Controllers
                 URL = URL + $"&id_token={id_token}";
 
             // Add the token to the cache
-            _memoryCache.Set(code, id_token);
+            _memoryCache.Set(userIDBase64, id_token);
 
             // Redirect to the client
             return Redirect(URL);

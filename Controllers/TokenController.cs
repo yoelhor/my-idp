@@ -22,11 +22,11 @@ namespace my_idp.oauth2.Controllers
 
         [HttpGet]
         [ActionName("index")]
-        public IActionResult IndexAsyncGet(string code)
+        public IActionResult IndexAsyncGet()
         {
             _logger.LogInformation($"#### HTTP GET call to /toekn");
 
-            return IndexCommonAsync(code);
+            return IndexCommonAsync();
         }
 
         [HttpPost]
@@ -44,44 +44,54 @@ namespace my_idp.oauth2.Controllers
             _logger.LogInformation($"#### HTTP request Headers: {JsonSerializer.Serialize(headers)}");
 
             // Log application/x-www-form-urlencoded data in one line as JSON
-            var formData = Request.Form.ToDictionary(f => f.Key, f => f.Value.ToString());  
+            var formData = Request.Form.ToDictionary(f => f.Key, f => f.Value.ToString());
             _logger.LogInformation($"#### HTTP request Form data: {JsonSerializer.Serialize(formData)}");
 
-            // Read the code from request form data
-            string code = Request.Form["code"].ToString() ?? string.Empty;
-            
-            return IndexCommonAsync(code);
+
+            return IndexCommonAsync();
         }
 
-        private IActionResult IndexCommonAsync(string code)
+        private IActionResult IndexCommonAsync()
         {
-            if (string.IsNullOrEmpty(code))
-            {
-                _logger.LogError($"#### Code parameter is missing");
-                return new BadRequestObjectResult(new { error = "Code parameter is missing." });
-            }
 
-            // Try to get teh client_id and client_secret
-            string ClientId = string.Empty;
-            string ClientSecret = string.Empty;
+            string clientId, clientSecret, grantType, userIDBase64 = string.Empty;
 
+            // Get the client_id, client_secret, and grant_type from the request
             if (Request.Method == "POST")
             {
-                ClientId = this.Request.Form["client_id"].ToString() ?? string.Empty;
-                ClientSecret = this.Request.Form["client_secret"].ToString() ?? string.Empty;
+                clientId = this.Request.Form["client_id"].ToString() ?? string.Empty;
+                clientSecret = this.Request.Form["client_secret"].ToString() ?? string.Empty;
+                grantType = this.Request.Form["grant_type"].ToString() ?? string.Empty;
+
+                // Check if the grant type is authorization_code or refresh_token
+                // and get the userIDBase64 from the code or refresh_token parameter
+                if (grantType == "authorization_code")
+                {
+                    userIDBase64 = this.Request.Form["code"].ToString() ?? string.Empty;
+                }
+                else if (grantType == "refresh_token")
+                {
+                    userIDBase64 = this.Request.Form["refresh_token"].ToString() ?? string.Empty;
+                }
+                else
+                {
+                    _logger.LogError($"#### Invalid grant type: {grantType}");
+                    return new BadRequestObjectResult(new { error = "Invalid grant type." });
+                }    
             }
             else
             {
-                ClientId = this.Request.Query["client_id"].ToString() ?? string.Empty;
-                ClientSecret = this.Request.Query["client_secret"].ToString() ?? string.Empty;
+                // For GET requests, get the client_id and client_secret from the query string
+                clientId = this.Request.Query["client_id"].ToString() ?? string.Empty;
+                clientSecret = this.Request.Query["client_secret"].ToString() ?? string.Empty;
             }
 
-            // Check if client_secret_post authentication method is used
-            if (!string.IsNullOrEmpty(ClientId) && !string.IsNullOrEmpty(ClientSecret))
+            // Check if the client_id and client_secret are present
+            if (!string.IsNullOrEmpty(clientId) && !string.IsNullOrEmpty(clientSecret))
             {
-                // Check credentials
+                // Check if the client_id and client_secret match the expected values
                 Oauth2TenantConfig settings = new Oauth2TenantConfig();
-                if (_configuration.GetSection("AppSettings:ClientId").Value! != ClientId || _configuration.GetSection("AppSettings:ClientSecret").Value != ClientSecret)
+                if (_configuration.GetSection("AppSettings:ClientId").Value! != clientId || _configuration.GetSection("AppSettings:ClientSecret").Value != clientSecret)
                 {
                     _logger.LogError($"#### Invalid cline_id or client_secret");
                     return new UnauthorizedObjectResult(new { error = "Invalid client_secret_post credentials" });
@@ -95,12 +105,8 @@ namespace my_idp.oauth2.Controllers
 
             try
             {
-                var base64EncodedBytes = System.Convert.FromBase64String(code);
-                string codeString = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-                HomeViewModel model = new HomeViewModel();
-
                 // Get the token from the canche using the code
-                string id_token = _memoryCache.Get<string>(codeString) ?? "Token not found";
+                string id_token = _memoryCache.Get<string>(userIDBase64) ?? "Token not found";
 
                 // Set the token lifetime
                 DateTime not_before = DateTime.Now.AddSeconds(-30);
@@ -130,7 +136,7 @@ namespace my_idp.oauth2.Controllers
             catch (System.Exception ex)
             {
                 _logger.LogError($"#### Token error: {ex.Message}");
-                return new BadRequestObjectResult(ex.Message + " Code: " + code);
+                return new BadRequestObjectResult(ex.Message + " Code: " + userIDBase64);
             }
         }
     }

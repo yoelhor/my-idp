@@ -38,17 +38,14 @@ namespace my_idp
                 throw new Exception("Certificate not found");
             });
         }
-        public static string BuildJwtToken(X509SigningCredentials SigningCredentials, string issuer, HttpRequest request, HomeViewModel model)
+        public static string BuildJwtToken(X509SigningCredentials SigningCredentials, string issuer, string userIDBase64, HttpRequest request, HomeViewModel model)
         {
             // Token issuance date and time
             DateTime time = DateTime.Now;
 
-            // Prepare the sub claim base64 encoded
-            string sub = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(model.email!));
-
             // All parameters send to Azure AD B2C needs to be sent as claims
             IList<System.Security.Claims.Claim> claims = new List<System.Security.Claims.Claim>();
-            claims.Add(new System.Security.Claims.Claim("sub", sub, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("sub", userIDBase64, System.Security.Claims.ClaimValueTypes.String, issuer));
             claims.Add(new System.Security.Claims.Claim("iat", ((DateTimeOffset)time).ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer, issuer));
             claims.Add(new System.Security.Claims.Claim("email", model.email!, System.Security.Claims.ClaimValueTypes.String, issuer));
             claims.Add(new System.Security.Claims.Claim("email_verified", true.ToString(), System.Security.Claims.ClaimValueTypes.Boolean, issuer));
