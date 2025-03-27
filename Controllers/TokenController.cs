@@ -4,6 +4,7 @@ using my_idp.Models;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
 
 namespace my_idp.oauth2.Controllers
 {
@@ -102,6 +103,10 @@ namespace my_idp.oauth2.Controllers
                     scope = "email openid"
                 };
 
+                // Log the response JSON
+                _logger.LogInformation($"#### Token response: {JsonSerializer.Serialize(payload)}");
+
+                // Return the JSON payload
                 return new OkObjectResult(payload);
             }
             catch (System.Exception ex)
