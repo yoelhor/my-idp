@@ -42,8 +42,10 @@ namespace my_idp.oauth2.Controllers
 
             string code = $"{model.client_id}|{model.email}";
             var codeTextBytes = System.Text.Encoding.UTF8.GetBytes(code);
-            string id_token = Commons.BuildJwtToken(HomeController.SigningCredentials.Value, _configuration.GetSection("AppSettings:issuer").Value!, this.Request, model);
             string URL = $"{model.redirect_uri}?code={System.Convert.ToBase64String(codeTextBytes)}";
+
+            // Generate the JWT token
+            string id_token = Commons.BuildJwtToken(HomeController.SigningCredentials.Value, _configuration.GetSection("AppSettings:issuer").Value!, this.Request, model);
 
             // Return the state parameter
             URL += $"&state={(model.state ?? string.Empty).Replace("=", "%3D")}";
