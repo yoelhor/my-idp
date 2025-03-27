@@ -43,13 +43,10 @@ namespace my_idp.oauth2.Controllers
             var headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
             _logger.LogInformation($"#### HTTP request Headers: {JsonSerializer.Serialize(headers)}");
 
-            // Log HTTP request body
-            using (var reader = new StreamReader(Request.Body))
-            {
-                string body = reader.ReadToEndAsync().Result;
-                _logger.LogInformation($"#### HTTP Request Body: {body}");
-            }
-            
+            // Log application/x-www-form-urlencoded data in one line as JSON
+            var formData = Request.Form.ToDictionary(f => f.Key, f => f.Value.ToString());  
+            _logger.LogInformation($"#### HTTP request Form data: {JsonSerializer.Serialize(formData)}");
+
             return IndexCommonAsync(code);
         }
 
