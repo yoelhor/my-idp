@@ -44,7 +44,7 @@ namespace my_idp
             DateTime time = DateTime.Now;
 
             // Prepare the sub claim base64 encoded
-            string sub = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(model.email!));       
+            string sub = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(model.email!));
 
             // All parameters send to Azure AD B2C needs to be sent as claims
             IList<System.Security.Claims.Claim> claims = new List<System.Security.Claims.Claim>();
@@ -54,23 +54,37 @@ namespace my_idp
             claims.Add(new System.Security.Claims.Claim("email_verified", true.ToString(), System.Security.Claims.ClaimValueTypes.Boolean, issuer));
             claims.Add(new System.Security.Claims.Claim("version", System.Reflection.Assembly.GetExecutingAssembly()!.GetName()!.Version!.ToString()!, System.Security.Claims.ClaimValueTypes.Boolean, issuer));
 
+            // Add display name claim if present
             if (model.name != null)
             {
                 claims.Add(new System.Security.Claims.Claim("name", model.name, System.Security.Claims.ClaimValueTypes.String, issuer));
-                claims.Add(new System.Security.Claims.Claim("given_name", model.name.Split(' ')[0], System.Security.Claims.ClaimValueTypes.String, issuer));
-                claims.Add(new System.Security.Claims.Claim("family_name", model.name.Split(' ')[1], System.Security.Claims.ClaimValueTypes.String, issuer));
             }
 
+            // Add given_name claim if present
+            if (model.given_name != null)
+            {
+                claims.Add(new System.Security.Claims.Claim("given_name", model.given_name, System.Security.Claims.ClaimValueTypes.String, issuer));
+            }
+
+            // Add family_name claim if present
+            if (model.family_name != null)
+            {
+                claims.Add(new System.Security.Claims.Claim("family_name", model.family_name, System.Security.Claims.ClaimValueTypes.String, issuer));
+            }
+
+            // Add phone_number claim if present
             if (model.phone_number != null)
             {
                 claims.Add(new System.Security.Claims.Claim("phone_number", model.phone_number, System.Security.Claims.ClaimValueTypes.String, issuer));
             }
 
+            // Add locality claim if present
             if (model.locality != null)
             {
                 claims.Add(new System.Security.Claims.Claim("locality", model.locality, System.Security.Claims.ClaimValueTypes.String, issuer));
             }
 
+            // Add country claim if present
             if (model.country != null)
             {
                 claims.Add(new System.Security.Claims.Claim("country", model.country, System.Security.Claims.ClaimValueTypes.String, issuer));
