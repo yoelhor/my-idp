@@ -26,10 +26,6 @@ namespace my_idp.oauth2.Controllers
         {
             _logger.LogInformation($"#### HTTP GET call to /toekn");
 
-            // Log HTTP request details including headers and query parameters
-            _logger.LogInformation($"#### HTTP Request Headers: {Request.Headers}");
-            _logger.LogInformation($"#### HTTP Request Query: {Request.Query}");
-
             return IndexCommonAsync(code);
         }
 
@@ -38,20 +34,22 @@ namespace my_idp.oauth2.Controllers
         public IActionResult IndexAsyncPost(string code)
         {
             _logger.LogInformation($"#### HTTP POST call to /toekn");
-    
-                // Log HTTP request details including headers and query parameters
-            _logger.LogInformation($"#### HTTP Request Headers: {Request.Headers}");
-            _logger.LogInformation($"#### HTTP Request Query: {Request.Query}");
+
+            // Log full request URL including query string
+            var fullUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}{Request.QueryString}";
+            _logger.LogInformation($"#### Full request URL: {fullUrl}");
+
+            // Log all headers in one line as JSON
+            var headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
+            _logger.LogInformation($"#### HTTP request Headers: {JsonSerializer.Serialize(headers)}");
 
             // Log HTTP request body
-
             using (var reader = new StreamReader(Request.Body))
             {
                 string body = reader.ReadToEndAsync().Result;
                 _logger.LogInformation($"#### HTTP Request Body: {body}");
             }
-
-
+            
             return IndexCommonAsync(code);
         }
 
