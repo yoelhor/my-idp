@@ -40,7 +40,7 @@ namespace my_idp.oauth2.Controllers
                 response_types_supported = new[] { "code", "code id_token", "id_token", "id_token token" },
                 scopes_supported = new[] { "openid", "profile", "offline_access" },
                 token_endpoint_auth_methods_supported = new[] { "client_secret_post", "private_key_jwt", "client_secret_basic" },
-                claims_supported = new[] { "sub", "name", "email", "nbf", "exp", "iss", "aud", "iat", "auth_time", "acr", "nonce" },
+                claims_supported = new[] { "sub", "name", "email", "email_verified", "nbf", "exp", "iss", "aud", "iat", "auth_time", "acr", "nonce" },
                 subject_types_supported = new[] { "pairwise" },
 
                 // Include the supported signing algorithms
