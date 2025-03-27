@@ -50,6 +50,7 @@ namespace my_idp
             claims.Add(new System.Security.Claims.Claim("sub", model.email, System.Security.Claims.ClaimValueTypes.String, issuer));
             claims.Add(new System.Security.Claims.Claim("iat", ((DateTimeOffset)time).ToUnixTimeSeconds().ToString(), System.Security.Claims.ClaimValueTypes.Integer, issuer));
             claims.Add(new System.Security.Claims.Claim("email", model.email, System.Security.Claims.ClaimValueTypes.String, issuer));
+            claims.Add(new System.Security.Claims.Claim("email_verified", model.email, System.Security.Claims.ClaimValueTypes.String, issuer));
 
             if (model.name != null)
             {

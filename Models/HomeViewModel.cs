@@ -3,6 +3,7 @@ namespace my_idp.Models;
 public class HomeViewModel
 {
     public string? email { get; set; }
+    public string? email_verified { get; set; }
     public string? name { get; set; }
     public string? given_name { get; set; }
     public string? family_name { get; set; }
