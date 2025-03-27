@@ -7,6 +7,10 @@ builder.Services.AddControllersWithViews();
 
 // Add Azure stream log service
 builder.Logging.AddAzureWebAppDiagnostics();
+builder.Logging.AddFilter((provider, category, logLevel) =>
+{
+    return provider!.ToLower().Contains("my_idp.oauth2") && logLevel >= LogLevel.Information;
+});
 
 // Add in memory cache                                                  
 builder.Services.AddMemoryCache();
