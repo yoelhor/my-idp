@@ -1,9 +1,24 @@
+using Microsoft.Extensions.Logging.AzureAppServices;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// Add Azure stream log service
+builder.Logging.AddAzureWebAppDiagnostics();
+builder.Services.Configure<AzureFileLoggerOptions>(options =>
+{
+    options.FileName = "azure-diagnostics-";
+    options.FileSizeLimit = 50 * 1024;
+    options.RetainedFileCountLimit = 5;
+});
+builder.Logging.AddFilter((provider, category, logLevel) =>
+{
+    return provider!.ToLower().Contains("my_idp");
+});
 
 // Enable Application Insights telemetry
 //builder.Services.AddApplicationInsightsTelemetry();

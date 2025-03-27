@@ -21,6 +21,7 @@ namespace my_idp.oauth2.Controllers
         [ActionName("index")]
         public async Task<IActionResult> IndexAsyncGet(string code)
         {
+            _logger.LogInformation($"#### HTTP GET call to /toekn");
             return await IndexCommonAsync(code);
         }
 
@@ -28,6 +29,7 @@ namespace my_idp.oauth2.Controllers
         [ActionName("index")]
         public async Task<IActionResult> IndexAsyncPost(string code)
         {
+            _logger.LogInformation($"#### HTTP POST call to /toekn");
             return await IndexCommonAsync(code);
         }
 
@@ -35,6 +37,7 @@ namespace my_idp.oauth2.Controllers
         {
             if (string.IsNullOrEmpty(code))
             {
+                _logger.LogError($"#### Code parameter is missing");
                 return new BadRequestObjectResult(new { error = "Code parameter is missing." });
             }
 
@@ -61,8 +64,14 @@ namespace my_idp.oauth2.Controllers
                 if (settings.Token.CheckCredentials &&
                     (settings.ClientId != ClientId || settings.ClientSecret != ClientSecret))
                 {
+                    _logger.LogError($"#### Invalid cline_id or client_secret");
                     return new UnauthorizedObjectResult(new { error = "Invalid client_secret_post credentials" });
                 }
+            }
+            else
+            {
+                _logger.LogError($"#### Missing cline_id or client_secret");
+                return new UnauthorizedObjectResult(new { error = "Invalid client_secret_post credentials" });
             }
 
             try
@@ -97,6 +106,7 @@ namespace my_idp.oauth2.Controllers
             }
             catch (System.Exception ex)
             {
+                _logger.LogError($"#### Token error: {ex.Message}");
                 return new BadRequestObjectResult(ex.Message + " Code: " + code);
             }
         }
